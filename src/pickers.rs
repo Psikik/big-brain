@@ -50,7 +50,9 @@ impl Picker for FirstToScore {
 }
 
 /**
-Picker that chooses the highest `Choice` with a [`Score`] higher than its configured `threshold`. Will select the first `Choice` if multiple choices tie for the highest score.
+Picker that chooses the highest `Choice` with a [`Score`] equal to or higher
+than its configured `threshold`. Will select the first `Choice` if multiple
+choices tie for the highest score.
 
 ### Example
 
@@ -73,12 +75,12 @@ impl HighestScore {
 
 impl Picker for HighestScore {
     fn pick(&self, choices: &[Choice], scores: &Query<&Score>) -> Option<Choice> {
-        let mut highest_choice_score: f32 = self.threshold;
+        let mut highest_choice_score: f32 = 0.;
         let mut highest_choice: Option<Choice> = None;
 
         for choice in choices {
             let value = choice.calculate(scores);
-            if value > highest_choice_score {
+            if value >= self.threshold && value > highest_choice_score {
                 highest_choice_score = value;
                 highest_choice = Some(choice.clone());
             }
