@@ -48,3 +48,42 @@ impl Picker for FirstToScore {
         None
     }
 }
+
+/**
+Picker that chooses the highest `Choice` with a [`Score`] higher than its configured `threshold`. Will select the first `Choice` if multiple choices tie for the highest score.
+
+### Example
+
+```no_run
+Thinker::build()
+    .picker(HighestScore::new(.0))
+    // .when(...)
+```
+*/
+#[derive(Debug, Clone, Default)]
+pub struct HighestScore {
+    pub threshold: f32,
+}
+
+impl HighestScore {
+    pub fn new(threshold: f32) -> Self {
+        Self { threshold }
+    }
+}
+
+impl Picker for HighestScore {
+    fn pick(&self, choices: &[Choice], scores: &Query<&Score>) -> Option<Choice> {
+        let mut highest_choice_score: f32 = self.threshold;
+        let mut highest_choice: Option<Choice> = None;
+
+        for choice in choices {
+            let value = choice.calculate(scores);
+            if value > highest_choice_score {
+                highest_choice_score = value;
+                highest_choice = Some(choice.clone());
+            }
+        }
+
+        highest_choice
+    }
+}
